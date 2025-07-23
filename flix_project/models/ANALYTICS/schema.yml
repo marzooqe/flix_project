@@ -1,0 +1,240 @@
+version: 2
+
+sources:
+  - name: SMMOIDEEN
+    schema: SMMOIDEEN
+    tables:
+      - name: AUDIT_FINDINGS
+      - name: JOURNAL_ENTRIES
+      - name: TOOL_MAPPING
+      - name: MANUAL_REPORT_REGISTRY
+      - name: RECONCILIATION_LOG
+      - name: PROCESS_HIERARCHY_MAP
+      - name: FX_RATES_ECB
+      - name: CLOSING_CALENDAR
+
+models:
+  - name: ANALYTICS_FACT_AUDIT_FINDINGS
+    description: >
+      Fact table capturing findings from internal or external audits,
+      including severity, due dates, owners, and remediation status.
+    columns:
+      - name: FINDING_ID
+        description: Unique identifier for the audit finding
+        tests:
+          - not_null
+          - unique
+      - name: AREA
+        description: Business area where the finding was identified
+        tests:
+          - not_null
+      - name: SEVERITY
+        description: Severity classification of the finding (e.g., High, Medium, Low)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['High', 'Medium', 'Low']
+      - name: DESCRIPTION
+        description: Textual explanation of the audit finding
+      - name: IDENTIFIED_BY
+        description: The audit body or team that identified the issue
+      - name: REMEDIATION_STATUS
+        description: Current status of resolution (e.g., Open, In Progress, Closed)
+        tests:
+          - accepted_values:
+              values: ['Open', 'In Progress', 'Closed']
+      - name: OWNER
+        description: Person or department responsible for remediating the finding
+      - name: DUE_DATE
+        description: Deadline for resolving the issue
+
+  - name: ANALYTICS_FACT_JOURNAL_ENTRIES
+    description: >
+      Financial journal entries for accounting purposes, including GL account,
+      cost center, tool used for booking, and amount.
+    columns:
+      - name: ENTRY_ID
+        description: Unique identifier for the journal entry
+        tests:
+          - not_null
+          - unique
+      - name: DATE
+        description: Date of the journal entry
+        tests:
+          - not_null
+      - name: ACCOUNT
+        description: GL account associated with the transaction
+        tests:
+          - not_null
+      - name: COST_CENTER
+        description: Cost center to which the entry is attributed
+      - name: AMOUNT
+        description: Transaction amount in original currency
+        tests:
+          - not_null
+      - name: CURRENCY
+        description: Currency used for the transaction
+      - name: ENTITY
+        description: Legal entity making the entry
+      - name: BOOKING_TOOL
+        description: System/tool used to book the entry
+      - name: SOURCE_SYSTEM
+        description: Source system from which the entry originated
+      - name: STATUS
+        description: Journal entry status (e.g., posted, draft, cancelled)
+
+  - name: ANALYTICS_FACT_TOOL_MAPPING
+    description: >
+      Mapping table showing the relationship between tools and departments,
+      including integration and manual step flags.
+    columns:
+      - name: TOOL_NAME
+        description: Name of the software tool
+        tests:
+          - not_null
+          - unique
+      - name: PRIMARY_USE
+        description: Main business function or use case for the tool
+      - name: DEPARTMENT
+        description: Department where the tool is primarily used
+      - name: MANUAL_STEP_INVOLVED
+        description: Boolean flag indicating if the tool requires manual input
+        tests:
+          - accepted_values:
+              values: ['Yes', 'No']
+      - name: INTEGRATION_WITH_ERP
+        description: Boolean flag indicating integration with ERP system
+        tests:
+          - accepted_values:
+              values: ['Yes', 'No']
+      - name: LEGACY_FLAG
+        description: Boolean flag indicating if the tool is legacy
+        tests:
+          - accepted_values:
+              values: ['Yes', 'No']
+
+  - name: ANALYTICS_FACT_MANUAL_REPORT_REGISTRY
+    description: >
+      Registry of manually prepared reports across departments, including time and cost
+      metrics, source systems used, and frequency of requests.
+    columns:
+      - name: REPORT_ID
+        description: Unique identifier for the report entry
+        tests:
+          - not_null
+          - unique
+      - name: ENTITY
+        description: Legal entity that owns or consumes the report
+      - name: DEPARTMENT
+        description: Department responsible for the report
+      - name: PURPOSE
+        description: Description of the report's purpose
+      - name: SOURCE_SYSTEMS_USED
+        description: Systems from which the report draws data
+      - name: AVG_PREPARATION_HOURS
+        description: Average number of hours to prepare the report
+      - name: HOURLY_RATE_LOCAL
+        description: Hourly cost in local currency
+      - name: TOTAL_COST_LOCAL
+        description: Total cost to prepare the report in local currency
+      - name: CURRENCY
+        description: Currency of the cost values
+      - name: REQUEST_FREQUENCY
+        description: Frequency of report request (e.g., weekly, monthly)
+        tests:
+          - accepted_values:
+              values: ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Ad Hoc']
+      - name: AUDIENCE
+        description: Primary audience or consumer of the report
+
+  - name: ANALYTICS_DIM_RECONCILIATION_LOG
+    description: >
+      Dimension table for reconciliation logs capturing financial account matching activity
+      and resolution status.
+    columns:
+      - name: RECON_ID
+        description: Unique reconciliation record identifier
+        tests:
+          - not_null
+          - unique
+      - name: ACCOUNT
+        description: General ledger account involved in the reconciliation
+      - name: ENTITY
+        description: Entity associated with the reconciliation record
+      - name: RECONCILED_BY
+        description: Person or system responsible for reconciliation
+      - name: RECON_STATUS
+        description: Reconciliation outcome status
+        tests:
+          - accepted_values:
+              values: ['Open', 'Closed', 'In Progress']
+      - name: TIMESTAMP_OPENED
+        description: Date when reconciliation was opened
+      - name: TIMESTAMP_CLOSED
+        description: Date when reconciliation was closed (if applicable)
+      - name: COMMENTS
+        description: Additional notes or justification about reconciliation outcome
+
+  - name: ANALYTICS_DIM_PROCESS_HIERARCHY_MAP
+    description: >
+      Hierarchical map of business processes and their sub-processes for navigation,
+      reporting and traceability.
+    columns:
+      - name: PARENT_PROCESS
+        description: The top-level business process
+        tests:
+          - not_null
+      - name: SUB_PROCESS
+        description: A subprocess within the parent business process
+        tests:
+          - not_null
+
+  - name: ANALYTICS_DIM_FX_RATES_ECB
+    description: >
+      Dimension table for foreign exchange rates provided by the European Central Bank (ECB),
+      storing conversion rates to EUR for each currency by date.
+    columns:
+      - name: DATE
+        description: Date of the exchange rate published
+        tests:
+          - not_null
+      - name: CURRENCY
+        description: 3-letter ISO currency code
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['USD', 'GBP', 'JPY', 'CHF', 'CNY', 'INR', 'AUD', 'CAD', 'EUR']
+      - name: RATE_TO_EUR
+        description: Conversion rate of the currency to EUR
+        tests:
+          - not_null
+
+  - name: ANALYTICS_DIM_CLOSING_CALENDAR
+    description: >
+      Calendar dimension to track monthly financial closing schedules per entity and country,
+      with planned and actual close dates and reasons for delay.
+    columns:
+      - name: COUNTRY
+        description: Country in which the entity operates
+        tests:
+          - not_null
+      - name: ENTITY
+        description: Business entity being closed
+        tests:
+          - not_null
+      - name: MONTH
+        description: Numeric month of the closing period (1 to 12)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1,2,3,4,5,6,7,8,9,10,11,12]
+      - name: YEAR
+        description: 4-digit year of the closing period
+        tests:
+          - not_null
+      - name: PLANNED_CLOSE_DATE
+        description: Target date for closing the books
+      - name: ACTUAL_CLOSE_DATE
+        description: Actual date the books were closed
+      - name: DELAY_REASON
+        description: Explanation of any delay in closing the period
