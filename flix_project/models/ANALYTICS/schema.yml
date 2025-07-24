@@ -238,3 +238,24 @@ models:
         description: Actual date the books were closed
       - name: DELAY_REASON
         description: Explanation of any delay in closing the period
+
+  - name: ANALYTICS_DIM_ENTITY
+    description: >
+      Combines ENTITY and CURRENCY from MANUAL_REPORT_REGISTRY and JOURNAL_ENTRIES
+      into a deduplicated list with a generated row ID.
+    columns:
+      - name: id
+        description: Unique row number generated using ROW_NUMBER().
+        tests:
+          - not_null
+          - unique
+
+      - name: entity
+        description: Entity identifier from source tables.
+        tests:
+          - not_null
+
+      - name: currency
+        description: Currency code associated with the entity.
+        tests:
+          - not_null
