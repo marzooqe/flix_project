@@ -259,3 +259,5 @@ models:
         description: Currency code associated with the entity.
         tests:
           - not_null
+
+  - name: REPORTING_MANUAL_REPORT_REGISTRY
