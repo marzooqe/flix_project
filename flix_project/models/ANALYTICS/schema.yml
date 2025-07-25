@@ -83,7 +83,7 @@ models:
       - name: STATUS
         description: Journal entry status (e.g., posted, draft, cancelled)
 
-  - name: ANALYTICS_FACT_TOOL_MAPPING
+  - name: ANALYTICS_DIM_TOOL_MAPPING
     description: >
       Mapping table showing the relationship between tools and departments,
       including integration and manual step flags.
