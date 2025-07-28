@@ -147,7 +147,7 @@ models:
       - name: AUDIENCE
         description: Primary audience or consumer of the report
 
-  - name: ANALYTICS_DIM_RECONCILIATION_LOG
+  - name: ANALYTICS_FACT_RECONCILIATION_LOG
     description: >
       Dimension table for reconciliation logs capturing financial account matching activity
       and resolution status.
@@ -209,7 +209,7 @@ models:
         tests:
           - not_null
 
-  - name: ANALYTICS_DIM_CLOSING_CALENDAR
+  - name: ANALYTICS_FACT_CLOSING_CALENDAR
     description: >
       Calendar dimension to track monthly financial closing schedules per entity and country,
       with planned and actual close dates and reasons for delay.
